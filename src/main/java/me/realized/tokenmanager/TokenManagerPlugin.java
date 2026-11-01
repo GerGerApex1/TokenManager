@@ -209,7 +209,7 @@ public class TokenManagerPlugin extends JavaPlugin implements TokenManager, List
     public boolean addTokens(final Player player, final long amount) {
         final OptionalLong balance = getTokens(player);
 
-        if (!balance.isPresent()) {
+        if (balance.isEmpty()) {
             return false;
         }
 
@@ -221,7 +221,7 @@ public class TokenManagerPlugin extends JavaPlugin implements TokenManager, List
     public boolean removeTokens(final Player player, final long amount) {
         final OptionalLong balance = getTokens(player);
 
-        if (!balance.isPresent()) {
+        if (balance.isEmpty()) {
             return false;
         }
 
@@ -237,7 +237,7 @@ public class TokenManagerPlugin extends JavaPlugin implements TokenManager, List
     @Override
     public void addTokens(final String key, final long amount, final boolean silent) {
         dataManager.get(key, balance -> {
-            if (!balance.isPresent()) {
+            if (balance.isEmpty()) {
                 return;
             }
 
@@ -254,7 +254,7 @@ public class TokenManagerPlugin extends JavaPlugin implements TokenManager, List
     @Override
     public void removeTokens(final String key, final long amount, final boolean silent) {
         dataManager.get(key, balance -> {
-            if (!balance.isPresent()) {
+            if (balance.isEmpty()) {
                 return;
             }
 

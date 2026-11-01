@@ -45,29 +45,51 @@ public final class ItemUtil {
                 enchantments.put(enchantment.getKey().getKey(), enchantment);
             }
         });
-        enchantments.put("power", Enchantment.ARROW_DAMAGE);
-        enchantments.put("flame", Enchantment.ARROW_FIRE);
-        enchantments.put("infinity", Enchantment.ARROW_INFINITE);
-        enchantments.put("punch", Enchantment.ARROW_KNOCKBACK);
-        enchantments.put("sharpness", Enchantment.DAMAGE_ALL);
-        enchantments.put("baneofarthopods", Enchantment.DAMAGE_ARTHROPODS);
-        enchantments.put("smite", Enchantment.DAMAGE_UNDEAD);
-        enchantments.put("efficiency", Enchantment.DIG_SPEED);
-        enchantments.put("unbreaking", Enchantment.DURABILITY);
+        enchantments.put("power", Enchantment.POWER);
+        enchantments.put("flame", Enchantment.FLAME);
+        enchantments.put("infinity", Enchantment.INFINITY);
+        enchantments.put("punch", Enchantment.PUNCH);
+        enchantments.put("sharpness", Enchantment.SHARPNESS);
+        enchantments.put("baneofarthopods", Enchantment.BANE_OF_ARTHROPODS);
+        enchantments.put("baneofarthropods", Enchantment.BANE_OF_ARTHROPODS);
+        enchantments.put("smite", Enchantment.SMITE);
+        enchantments.put("efficiency", Enchantment.EFFICIENCY);
+        enchantments.put("unbreaking", Enchantment.UNBREAKING);
         enchantments.put("thorns", Enchantment.THORNS);
         enchantments.put("fireaspect", Enchantment.FIRE_ASPECT);
         enchantments.put("knockback", Enchantment.KNOCKBACK);
-        enchantments.put("fortune", Enchantment.LOOT_BONUS_BLOCKS);
-        enchantments.put("looting", Enchantment.LOOT_BONUS_MOBS);
-        enchantments.put("respiration", Enchantment.OXYGEN);
-        enchantments.put("blastprotection", Enchantment.PROTECTION_EXPLOSIONS);
-        enchantments.put("featherfalling", Enchantment.PROTECTION_FALL);
-        enchantments.put("fireprotection", Enchantment.PROTECTION_FIRE);
-        enchantments.put("projectileprotection", Enchantment.PROTECTION_PROJECTILE);
-        enchantments.put("protection", Enchantment.PROTECTION_ENVIRONMENTAL);
+        enchantments.put("fortune", Enchantment.FORTUNE);
+        enchantments.put("looting", Enchantment.LOOTING);
+        enchantments.put("respiration", Enchantment.RESPIRATION);
+        enchantments.put("blastprotection", Enchantment.BLAST_PROTECTION);
+        enchantments.put("featherfalling", Enchantment.FEATHER_FALLING);
+        enchantments.put("fireprotection", Enchantment.FIRE_PROTECTION);
+        enchantments.put("projectileprotection", Enchantment.PROJECTILE_PROTECTION);
+        enchantments.put("protection", Enchantment.PROTECTION);
         enchantments.put("silktouch", Enchantment.SILK_TOUCH);
-        enchantments.put("aquaaffinity", Enchantment.WATER_WORKER);
-        enchantments.put("luck", Enchantment.LUCK);
+        enchantments.put("aquaaffinity", Enchantment.AQUA_AFFINITY);
+        enchantments.put("luck", Enchantment.LUCK_OF_THE_SEA);
+        enchantments.put("luckofthesea", Enchantment.LUCK_OF_THE_SEA);
+        enchantments.put("lure", Enchantment.LURE);
+        enchantments.put("depthstrider", Enchantment.DEPTH_STRIDER);
+        enchantments.put("frostwalker", Enchantment.FROST_WALKER);
+        enchantments.put("mending", Enchantment.MENDING);
+        enchantments.put("bindingcurse", Enchantment.BINDING_CURSE);
+        enchantments.put("vanishingcurse", Enchantment.VANISHING_CURSE);
+        enchantments.put("sweepingedge", Enchantment.SWEEPING_EDGE);
+        enchantments.put("loyalty", Enchantment.LOYALTY);
+        enchantments.put("impaling", Enchantment.IMPALING);
+        enchantments.put("riptide", Enchantment.RIPTIDE);
+        enchantments.put("channeling", Enchantment.CHANNELING);
+        enchantments.put("multishot", Enchantment.MULTISHOT);
+        enchantments.put("quickcharge", Enchantment.QUICK_CHARGE);
+        enchantments.put("piercing", Enchantment.PIERCING);
+        enchantments.put("soulspeed", Enchantment.SOUL_SPEED);
+        enchantments.put("swiftsneak", Enchantment.SWIFT_SNEAK);
+        enchantments.put("density", Enchantment.DENSITY);
+        enchantments.put("breach", Enchantment.BREACH);
+        enchantments.put("windburst", Enchantment.WIND_BURST);
+        enchantments.put("lunge", Enchantment.LUNGE);
         ENCHANTMENTS = Collections.unmodifiableMap(enchantments);
 
         final Map<String, PotionEffectType> effects = new HashMap<>();
@@ -77,18 +99,26 @@ public final class ItemUtil {
             }
 
             effects.put(type.getName(), type);
+
+            if (!CompatUtil.isPre1_13()) {
+                effects.put(type.getKey().getKey(), type);
+            }
         });
         effects.put("speed", PotionEffectType.SPEED);
-        effects.put("slowness", PotionEffectType.SLOW);
-        effects.put("haste", PotionEffectType.FAST_DIGGING);
-        effects.put("fatigue", PotionEffectType.SLOW_DIGGING);
-        effects.put("strength", PotionEffectType.INCREASE_DAMAGE);
-        effects.put("heal", PotionEffectType.HEAL);
-        effects.put("harm", PotionEffectType.HARM);
-        effects.put("jump", PotionEffectType.JUMP);
-        effects.put("nausea", PotionEffectType.CONFUSION);
+        effects.put("slowness", PotionEffectType.SLOWNESS);
+        effects.put("haste", PotionEffectType.HASTE);
+        effects.put("fatigue", PotionEffectType.MINING_FATIGUE);
+        effects.put("miningfatigue", PotionEffectType.MINING_FATIGUE);
+        effects.put("strength", PotionEffectType.STRENGTH);
+        effects.put("heal", PotionEffectType.INSTANT_HEALTH);
+        effects.put("instanthealth", PotionEffectType.INSTANT_HEALTH);
+        effects.put("harm", PotionEffectType.INSTANT_DAMAGE);
+        effects.put("instantdamage", PotionEffectType.INSTANT_DAMAGE);
+        effects.put("jump", PotionEffectType.JUMP_BOOST);
+        effects.put("jumpboost", PotionEffectType.JUMP_BOOST);
+        effects.put("nausea", PotionEffectType.NAUSEA);
         effects.put("regeneration", PotionEffectType.REGENERATION);
-        effects.put("resistance", PotionEffectType.DAMAGE_RESISTANCE);
+        effects.put("resistance", PotionEffectType.RESISTANCE);
         effects.put("fireresistance", PotionEffectType.FIRE_RESISTANCE);
         effects.put("waterbreathing", PotionEffectType.WATER_BREATHING);
         effects.put("invisibility", PotionEffectType.INVISIBILITY);
@@ -101,6 +131,24 @@ public final class ItemUtil {
         effects.put("healthboost", PotionEffectType.HEALTH_BOOST);
         effects.put("absorption", PotionEffectType.ABSORPTION);
         effects.put("saturation", PotionEffectType.SATURATION);
+        effects.put("glowing", PotionEffectType.GLOWING);
+        effects.put("levitation", PotionEffectType.LEVITATION);
+        effects.put("luck", PotionEffectType.LUCK);
+        effects.put("unluck", PotionEffectType.UNLUCK);
+        effects.put("badluck", PotionEffectType.UNLUCK);
+        effects.put("slowfalling", PotionEffectType.SLOW_FALLING);
+        effects.put("conduitpower", PotionEffectType.CONDUIT_POWER);
+        effects.put("dolphinsgrace", PotionEffectType.DOLPHINS_GRACE);
+        effects.put("badomen", PotionEffectType.BAD_OMEN);
+        effects.put("heroofthevillage", PotionEffectType.HERO_OF_THE_VILLAGE);
+        effects.put("darkness", PotionEffectType.DARKNESS);
+        effects.put("trialomen", PotionEffectType.TRIAL_OMEN);
+        effects.put("raidomen", PotionEffectType.RAID_OMEN);
+        effects.put("windcharged", PotionEffectType.WIND_CHARGED);
+        effects.put("weaving", PotionEffectType.WEAVING);
+        effects.put("oozing", PotionEffectType.OOZING);
+        effects.put("infested", PotionEffectType.INFESTED);
+        effects.put("breathofthenautilus", PotionEffectType.BREATH_OF_THE_NAUTILUS);
         EFFECTS = Collections.unmodifiableMap(effects);
     }
 
@@ -225,7 +273,7 @@ public final class ItemUtil {
 
         if (key.equalsIgnoreCase("unbreakable") && value.equalsIgnoreCase("true")) {
             if (CompatUtil.isPre1_12()) {
-                meta.spigot().setUnbreakable(true);
+                //meta.spigot().setUnbreakable(true);
             } else {
                 meta.setUnbreakable(true);
             }

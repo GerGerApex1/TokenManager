@@ -6,7 +6,7 @@ import me.realized.tokenmanager.TokenManagerPlugin;
 import me.realized.tokenmanager.api.event.TMSellAllEvent;
 import me.realized.tokenmanager.api.event.TMSellHandEvent;
 import me.realized.tokenmanager.command.BaseCommand;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

@@ -5,7 +5,7 @@ import me.realized.tokenmanager.Permissions;
 import me.realized.tokenmanager.TokenManagerPlugin;
 import me.realized.tokenmanager.command.BaseCommand;
 import me.realized.tokenmanager.shop.Shop;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 
 public class ShopsCommand extends BaseCommand {

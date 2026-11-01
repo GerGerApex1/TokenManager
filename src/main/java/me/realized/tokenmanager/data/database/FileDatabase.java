@@ -22,7 +22,7 @@ import me.realized.tokenmanager.config.Config;
 import me.realized.tokenmanager.util.Log;
 import me.realized.tokenmanager.util.compat.CompatUtil;
 import me.realized.tokenmanager.util.profile.ProfileUtil;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -76,7 +76,7 @@ public class FileDatabase extends AbstractDatabase {
     public void get(final String key, final Consumer<OptionalLong> onLoad, final Consumer<String> onError, final boolean create) {
         final OptionalLong cached = from(data.get(key));
 
-        if (!cached.isPresent() && create) {
+        if (cached.isEmpty() && create) {
             final long defaultBalance = plugin.getConfiguration().getDefaultBalance();
             data.put(key, defaultBalance);
 
@@ -185,8 +185,14 @@ public class FileDatabase extends AbstractDatabase {
     @Override
     public void transfer(final CommandSender sender, final Consumer<String> errorHandler) {
         final Config config = plugin.getConfiguration();
-        final String query = String
-            .format("SELECT %s, tokens FROM %s;", online ? "uuid" : "name", StringEscapeUtils.escapeSql(plugin.getConfiguration().getMysqlTable()));
+        String keyColumn = online ? "uuid" : "name";
+
+// 2. Sanitize the configured table name to strict alphanumeric/underscore characters
+        String tableName = plugin.getConfiguration().getMysqlTable().replaceAll("[^a-zA-Z0-9_]", "");
+
+// 3. Construct the query string with escaped backticks around identifiers
+        String sql = String.format("SELECT `%s`, `tokens` FROM `%s`;", keyColumn, tableName);
+
         final HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl("jdbc:mysql://" + config.getMysqlHostname() + ":" + config.getMysqlPort() + "/" + config.getMysqlDatabase());
         hikariConfig.setDriverClassName("com.mysql." + (CompatUtil.isPre1_17() ? "jdbc" : "cj") + ".Driver");
@@ -200,7 +206,7 @@ public class FileDatabase extends AbstractDatabase {
             try (
                 HikariDataSource dataSource = new HikariDataSource(hikariConfig);
                 Connection connection = dataSource.getConnection();
-                PreparedStatement statement = connection.prepareStatement(query);
+                PreparedStatement statement = connection.prepareStatement(sql);
                 ResultSet resultSet = statement.executeQuery()
             ) {
                 sender.sendMessage(ChatColor.BLUE + plugin.getDescription().getFullName() + ": Load Complete. Starting the transfer...");

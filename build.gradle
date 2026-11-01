@@ -7,21 +7,22 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
+        classpath 'com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.6.1'
     }
 }
 
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '2.0.4'
+    id 'com.gradleup.shadow' version '9.6.1'
 }
 
 group 'me.realized'
-version '3.2.8'
+version '3.3.0'
 
 compileJava.options.encoding = 'UTF-8'
 
 processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
     def group = project.group.toString() + "." + project.name.toLowerCase() + ".shaded"
 
     from(sourceSets.main.resources.srcDirs) {
@@ -44,13 +45,8 @@ repositories {
     }
 
     maven {
-        name 'mvdw-repo'
-        url 'http://repo.mvdw-software.be/content/groups/public/'
-    }
-
-    maven {
-        name 'clip-repo'
-        url 'http://repo.extendedclip.com/content/repositories/placeholderapi/'
+        name "helpchatRepoReleases"
+        url "https://repo.helpch.at/releases"
     }
 
     maven {
@@ -59,42 +55,43 @@ repositories {
     }
 
     maven {
-        name 'inventive-repo'
-        url 'https://repo.inventivetalent.org/content/groups/public/'
+        name 'codemc-creatorfromhell'
+        url 'https://repo.codemc.io/repository/creatorfromhell/'
     }
-
     flatDir {
         dirs "$rootDir/libs/"
     }
 }
 
 dependencies {
-    compile 'org.projectlombok:lombok:1.18.22'
-    compile 'org.spigotmc:spigot-api:1.14.4-R0.1-SNAPSHOT'
-    compile (name: 'MVdWPlaceholderAPI-3.1.1') {
+    compileOnly 'org.projectlombok:lombok:1.18.48'
+
+    annotationProcessor 'org.projectlombok:lombok:1.18.48'
+    compileOnly 'org.spigotmc:spigot-api:26.3-R0.1-SNAPSHOT'
+    compileOnly (name: 'MVdWPlaceholderAPI-3.1.1') {
         transitive = false
     }
-    compile name: 'Vault-1.6.7'
-    compile 'me.clip:placeholderapi:2.10.9'
+    compileOnly 'me.clip:placeholderapi:2.12.3'
 
     // shaded dependencies
-    compile 'redis.clients:jedis:3.5.1'
-    compile 'org.apache.commons:commons-pool2:2.4.2'
-    compile 'com.zaxxer:HikariCP:4.0.2'
-    compile 'org.slf4j:slf4j-nop:1.7.32'
-    compile 'org.bstats:bstats-bukkit:1.7'
+    compileOnly 'redis.clients:jedis:8.0.2'
+    compileOnly 'org.apache.commons:commons-pool2:2.13.1'
+    compileOnly "net.milkbowl.vault:VaultUnlockedAPI:2.16"
+    compileOnly 'org.apache.commons:commons-lang3:3.21.0'
+    compileOnly 'com.zaxxer:HikariCP:7.1.0'
+    compileOnly 'org.slf4j:slf4j-nop:2.0.20'
+    compileOnly 'org.bstats:bstats-bukkit:3.2.1'
 }
 
 clean.doFirst {
     delete "$rootDir/out/"
 }
 
-shadowJar {
+tasks.named('shadowJar') {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    destinationDir = file("$rootDir/out/")
-    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
-    baseName = 'TokenManager'
-    classifier = null
+    destinationDirectory.set(file("$rootDir/out/"))
+    archiveBaseName.set('TokenManager')
+    archiveClassifier.set('') // Replaces 'classifier = null' to remove the '-all' suffix
 
     dependencies {
         include(dependency('redis.clients:.*'))
@@ -104,13 +101,13 @@ shadowJar {
         include(dependency('org.bstats:.*'))
     }
 
-    def group = project.group.toString() + "." + project.name.toLowerCase() + ".shaded."
+    def shadedPackage = "${project.group}.${project.name.toLowerCase()}.shaded."
 
-    relocate 'redis.clients', group + 'redis.clients'
-    relocate 'org.apache.commons.pool2', group + 'apache.commons.pool2'
-    relocate 'com.zaxxer.hikari', group + 'zaxxer.hikari'
-    relocate 'org.slf4j', group + "slf4j"
-    relocate 'org.bstats', group + 'bstats'
+    relocate 'redis.clients', shadedPackage + 'redis.clients'
+    relocate 'org.apache.commons.pool2', shadedPackage + 'apache.commons.pool2'
+    relocate 'com.zaxxer.hikari', shadedPackage + 'zaxxer.hikari'
+    relocate 'org.slf4j', shadedPackage + 'slf4j'
+    relocate 'org.bstats', shadedPackage + 'bstats'
 }
 
 build.dependsOn(shadowJar)

@@ -13,7 +13,7 @@ import me.realized.tokenmanager.util.Reloadable;
 import me.realized.tokenmanager.util.StringUtil;
 import me.realized.tokenmanager.util.config.AbstractConfiguration;
 import me.realized.tokenmanager.util.config.convert.Converter;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.FileConfiguration;

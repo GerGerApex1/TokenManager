@@ -31,7 +31,7 @@ import me.realized.tokenmanager.util.Log;
 import me.realized.tokenmanager.util.NumberUtil;
 import me.realized.tokenmanager.util.compat.CompatUtil;
 import me.realized.tokenmanager.util.profile.ProfileUtil;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -61,7 +61,7 @@ public class MySQLDatabase extends AbstractDatabase {
 
     public MySQLDatabase(final TokenManagerPlugin plugin) {
         super(plugin);
-        this.table = StringEscapeUtils.escapeSql(plugin.getConfiguration().getMysqlTable());
+        this.table = plugin.getConfiguration().getMysqlTable().replaceAll("[^a-zA-Z0-9_]", "");
         this.executor = Executors.newCachedThreadPool();
         Query.update(table, online);
     }
