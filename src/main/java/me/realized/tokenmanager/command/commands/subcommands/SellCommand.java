@@ -35,7 +35,7 @@ public class SellCommand extends BaseCommand {
             for (int slot = 0; slot < 36; slot++) {
                 final ItemStack item = inventory.getItem(slot);
 
-                if (item == null) {
+                if (item == null || item.getType().name().endsWith("AIR")) {
                     continue;
                 }
 
@@ -57,7 +57,7 @@ public class SellCommand extends BaseCommand {
             for (int slot = 0; slot < 36; slot++) {
                 final ItemStack item = inventory.getItem(slot);
 
-                if (item == null) {
+                if (item == null || item.getType().name().endsWith("AIR")) {
                     continue;
                 }
 
@@ -76,7 +76,7 @@ public class SellCommand extends BaseCommand {
         final int heldSlot = player.getInventory().getHeldItemSlot();
         final ItemStack item = player.getInventory().getItem(heldSlot);
 
-        if (item == null) {
+        if (item == null || item.getType().name().endsWith("AIR")) {
             sendMessage(sender, true, "ERROR.no-item-in-hand");
             return;
         }

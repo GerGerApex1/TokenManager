@@ -5,6 +5,7 @@ import java.util.List;
 import me.realized.tokenmanager.util.StringUtil;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public final class ItemBuilder {
@@ -12,7 +13,18 @@ public final class ItemBuilder {
     private final ItemStack result;
 
     private ItemBuilder(final Material type, final int amount, final short durability) {
-        this.result = new ItemStack(type, amount, durability);
+        this.result = new ItemStack(type, amount);
+
+        if (durability != 0) {
+            final ItemMeta meta = this.result.getItemMeta();
+
+            if (meta instanceof Damageable) {
+                ((Damageable) meta).setDamage(durability);
+                this.result.setItemMeta(meta);
+            } else {
+                this.result.setDurability(durability);
+            }
+        }
     }
 
     public static ItemBuilder of(final Material type) {
@@ -28,11 +40,23 @@ public final class ItemBuilder {
     }
 
     public static ItemBuilder of(final String type, final int amount, final short durability) {
-        return new ItemBuilder(Material.getMaterial(type), amount, durability);
+        Material material = Material.matchMaterial(type);
+
+        if (material == null) {
+            try {
+                material = Material.matchMaterial(type, true);
+            } catch (Throwable ignored) {}
+        }
+
+        if (material == null) {
+            material = Material.getMaterial(type);
+        }
+
+        return new ItemBuilder(material != null ? material : Material.STONE, amount, durability);
     }
 
     public ItemBuilder name(final String name) {
-        ItemMeta meta = result.getItemMeta();
+        final ItemMeta meta = result.getItemMeta();
         meta.setDisplayName(StringUtil.color(name));
         result.setItemMeta(meta);
         return this;
@@ -43,7 +67,7 @@ public final class ItemBuilder {
     }
 
     public ItemBuilder lore(final List<String> lore) {
-        ItemMeta meta = result.getItemMeta();
+        final ItemMeta meta = result.getItemMeta();
         meta.setLore(StringUtil.color(lore));
         result.setItemMeta(meta);
         return this;

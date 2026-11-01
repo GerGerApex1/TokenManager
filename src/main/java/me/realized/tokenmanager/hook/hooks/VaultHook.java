@@ -97,7 +97,7 @@ public class VaultHook extends PluginHook<TokenManagerPlugin> {
 
         @Override
         public EconomyResponse withdrawPlayer(OfflinePlayer player, double amount) {
-            if (player == null) {
+            if (player == null || player.getPlayer() == null) {
                 return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player is not online");
             }
 
@@ -133,7 +133,7 @@ public class VaultHook extends PluginHook<TokenManagerPlugin> {
 
         @Override
         public EconomyResponse depositPlayer(OfflinePlayer player, double amount) {
-            if (player == null) {
+            if (player == null || player.getPlayer() == null) {
                 return new EconomyResponse(0, 0, EconomyResponse.ResponseType.FAILURE, "Player is not online");
             }
 

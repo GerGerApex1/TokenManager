@@ -22,6 +22,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -161,6 +162,12 @@ public final class ItemUtil {
         String[] materialData = args[0].split(":");
         Material material = Material.matchMaterial(materialData[0]);
 
+        if (material == null) {
+            try {
+                material = Material.matchMaterial(materialData[0], true);
+            } catch (Throwable ignored) {}
+        }
+
         // TEMP: Allow confirm button item loading in 1.13
         if (!CompatUtil.isPre1_13()) {
             if (materialData[0].equalsIgnoreCase("STAINED_CLAY")) {
@@ -183,14 +190,18 @@ public final class ItemUtil {
             if (!CompatUtil.isPre1_9()) {
                 if (material.name().contains("POTION")) {
                     final List<String> values = Arrays.asList(materialData[1].split("-"));
-                    final PotionType type;
+                    final String typeName = values.get(0);
+                    final boolean extended = values.contains("extended");
+                    final boolean strong = values.contains("strong");
 
-                    if ((type = EnumUtil.getByName(values.get(0), PotionType.class)) == null) {
+                    final PotionType type = resolvePotionType(typeName, extended, strong);
+
+                    if (type == null) {
                         throw new IllegalArgumentException("'" + values.get(0) + "' is not a valid PotionType. Available: " + EnumUtil.getNames(PotionType.class));
                     }
 
                     final PotionMeta meta = (PotionMeta) result.getItemMeta();
-                    meta.setBasePotionData(new PotionData(type, values.contains("extended"), values.contains("strong")));
+                    applyPotionType(meta, type, extended, strong);
                     result.setItemMeta(meta);
                 } else if (CompatUtil.isPre1_13() && material.name().equals("MONSTER_EGG")) {
                     final EntityType type;
@@ -206,7 +217,14 @@ public final class ItemUtil {
             final OptionalLong value;
 
             if ((value = NumberUtil.parseLong(materialData[1])).isPresent()) {
-                result.setDurability((short) value.getAsLong());
+                final ItemMeta meta = result.getItemMeta();
+
+                if (meta instanceof Damageable) {
+                    ((Damageable) meta).setDamage((int) value.getAsLong());
+                    result.setItemMeta(meta);
+                } else {
+                    result.setDurability((short) value.getAsLong());
+                }
             }
         }
 
@@ -232,6 +250,67 @@ public final class ItemUtil {
         return result;
     }
 
+    private static PotionType resolvePotionType(final String rawName, final boolean extended, final boolean strong) {
+        String name = rawName.toUpperCase();
+
+        switch (name) {
+            case "SPEED":
+                name = "SWIFTNESS";
+                break;
+            case "HEAL":
+            case "INSTANT_HEAL":
+                name = "HEALING";
+                break;
+            case "HARM":
+            case "INSTANT_DAMAGE":
+                name = "HARMING";
+                break;
+            case "JUMP":
+                name = "LEAPING";
+                break;
+            case "REGEN":
+                name = "REGENERATION";
+                break;
+            default:
+                break;
+        }
+
+        if (extended) {
+            final PotionType longType = EnumUtil.getByName("LONG_" + name, PotionType.class);
+
+            if (longType != null) {
+                return longType;
+            }
+        }
+
+        if (strong) {
+            final PotionType strongType = EnumUtil.getByName("STRONG_" + name, PotionType.class);
+
+            if (strongType != null) {
+                return strongType;
+            }
+        }
+
+        final PotionType mappedType = EnumUtil.getByName(name, PotionType.class);
+
+        if (mappedType != null) {
+            return mappedType;
+        }
+
+        return EnumUtil.getByName(rawName.toUpperCase(), PotionType.class);
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void applyPotionType(final PotionMeta meta, final PotionType type, final boolean extended, final boolean strong) {
+        try {
+            meta.setBasePotionType(type);
+            return;
+        } catch (NoSuchMethodError | Exception ignored) {}
+
+        try {
+            meta.setBasePotionData(new PotionData(type, extended, strong));
+        } catch (Throwable ignored) {}
+    }
 
     public static ItemStack loadFromString(final String line, final Consumer<String> errorHandler) {
         ItemStack result;
@@ -318,7 +397,7 @@ public final class ItemUtil {
             }
         }
 
-        if (Items.equals(Items.HEAD, item) && (key.equalsIgnoreCase("player") || key.equalsIgnoreCase("owner") || key.equalsIgnoreCase("texture"))) {
+        if ((meta instanceof SkullMeta || Items.equals(Items.HEAD, item)) && (key.equalsIgnoreCase("player") || key.equalsIgnoreCase("owner") || key.equalsIgnoreCase("texture"))) {
             final SkullMeta skullMeta = (SkullMeta) meta;
 
             // Since Base64 texture strings are much longer than usernames...
@@ -329,6 +408,7 @@ public final class ItemUtil {
             }
 
             item.setItemMeta(skullMeta);
+            return;
         }
 
         if (item.getType().name().contains("LEATHER_") && key.equalsIgnoreCase("color")) {
@@ -336,6 +416,7 @@ public final class ItemUtil {
             final String[] values = value.split(",");
             leatherArmorMeta.setColor(Color.fromRGB(Integer.parseInt(values[0]), Integer.parseInt(values[1]), Integer.parseInt(values[2])));
             item.setItemMeta(leatherArmorMeta);
+            return;
         }
 
         if (key.equalsIgnoreCase("custommodeldata") && !CompatUtil.isPre1_14()) {

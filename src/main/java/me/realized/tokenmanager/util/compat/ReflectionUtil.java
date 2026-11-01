@@ -3,7 +3,6 @@ package me.realized.tokenmanager.util.compat;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import me.realized.tokenmanager.util.NumberUtil;
 import org.bukkit.Bukkit;
 
 public final class ReflectionUtil {
@@ -12,8 +11,9 @@ public final class ReflectionUtil {
 
     static {
         final String packageName = Bukkit.getServer().getClass().getPackage().getName();
-        PACKAGE_VERSION = packageName.substring(packageName.lastIndexOf('.') + 1);
-        MAJOR_VERSION = (int) NumberUtil.parseLong(PACKAGE_VERSION.split("_")[1]).orElse(0);
+        final String lastPart = packageName.substring(packageName.lastIndexOf('.') + 1);
+        PACKAGE_VERSION = lastPart.startsWith("v") ? lastPart : "";
+        MAJOR_VERSION = (int) CompatUtil.getSubVersion();
     }
 
     public static int getMajorVersion() {
@@ -29,6 +29,10 @@ public final class ReflectionUtil {
     }
 
     public static Method getMethodUnsafe(final Class<?> clazz, final String name, final Class<?>... parameters) {
+        if (clazz == null) {
+            return null;
+        }
+
         try {
             return clazz.getMethod(name, parameters);
         } catch (NoSuchMethodException ex) {
@@ -38,7 +42,11 @@ public final class ReflectionUtil {
 
     public static Class<?> getNMSClass(final String name, final boolean logError) {
         try {
-            return Class.forName("net.minecraft" + (getMajorVersion() < 17 ? (".server." + PACKAGE_VERSION) : "") + "." + name);
+            if (getMajorVersion() < 17 && !PACKAGE_VERSION.isEmpty()) {
+                return Class.forName("net.minecraft.server." + PACKAGE_VERSION + "." + name);
+            }
+
+            return Class.forName("net.minecraft." + name);
         } catch (ClassNotFoundException ex) {
             if (logError) {
                 ex.printStackTrace();
@@ -49,13 +57,23 @@ public final class ReflectionUtil {
     }
 
     public static Class<?> getNMSClass(final String name) {
-        return getNMSClass(name, true);
+        return getNMSClass(name, false);
     }
 
     public static Class<?> getCBClass(final String path, final boolean logError) {
+        final String className = PACKAGE_VERSION.isEmpty()
+            ? "org.bukkit.craftbukkit." + path
+            : "org.bukkit.craftbukkit." + PACKAGE_VERSION + "." + path;
+
         try {
-            return Class.forName("org.bukkit.craftbukkit." + PACKAGE_VERSION + "." + path);
+            return Class.forName(className);
         } catch (ClassNotFoundException ex) {
+            if (!PACKAGE_VERSION.isEmpty()) {
+                try {
+                    return Class.forName("org.bukkit.craftbukkit." + path);
+                } catch (ClassNotFoundException ignored) {}
+            }
+
             if (logError) {
                 ex.printStackTrace();
             }
@@ -65,22 +83,25 @@ public final class ReflectionUtil {
     }
 
     public static Class<?> getCBClass(final String path) {
-        return getCBClass(path, true);
+        return getCBClass(path, false);
     }
 
     public static Class<?> getALClass(final String name) {
         try {
             return Class.forName("com.mojang.authlib." + name);
         } catch (ClassNotFoundException ex) {
-            ex.printStackTrace();
             return null;
         }
     }
+
     public static Method getMethod(final Class<?> clazz, final String name, final Class<?>... parameters) {
+        if (clazz == null) {
+            return null;
+        }
+
         try {
             return clazz.getMethod(name, parameters);
         } catch (NoSuchMethodException ex) {
-            ex.printStackTrace();
             return null;
         }
     }
@@ -92,15 +113,22 @@ public final class ReflectionUtil {
     }
 
     public static Method getDeclaredMethod(final Class<?> clazz, final String name, final Class<?>... parameters) {
+        if (clazz == null) {
+            return null;
+        }
+
         try {
             return findDeclaredMethod(clazz, name, parameters);
         } catch (NoSuchMethodException ex) {
-            ex.printStackTrace();
             return null;
         }
     }
 
     public static Method getDeclaredMethodUnsafe(final Class<?> clazz, final String name, final Class<?>... parameters) {
+        if (clazz == null) {
+            return null;
+        }
+
         try {
             return findDeclaredMethod(clazz, name, parameters);
         } catch (NoSuchMethodException ex) {
@@ -109,30 +137,39 @@ public final class ReflectionUtil {
     }
 
     public static Field getField(final Class<?> clazz, final String name) {
+        if (clazz == null) {
+            return null;
+        }
+
         try {
             return clazz.getField(name);
         } catch (NoSuchFieldException ex) {
-            ex.printStackTrace();
             return null;
         }
     }
 
     public static Field getDeclaredField(final Class<?> clazz, final String name) {
+        if (clazz == null) {
+            return null;
+        }
+
         try {
             final Field field = clazz.getDeclaredField(name);
             field.setAccessible(true);
             return field;
         } catch (NoSuchFieldException ex) {
-            ex.printStackTrace();
             return null;
         }
     }
 
     public static Constructor<?> getConstructor(final Class<?> clazz, final Class<?>... parameters) {
+        if (clazz == null) {
+            return null;
+        }
+
         try {
             return clazz.getConstructor(parameters);
         } catch (NoSuchMethodException ex) {
-            ex.printStackTrace();
             return null;
         }
     }

@@ -33,7 +33,7 @@ public class WorthCommand extends BaseCommand {
             for (int slot = 0; slot < 36; slot++) {
                 final ItemStack item = inventory.getItem(slot);
 
-                if (item == null) {
+                if (item == null || item.getType().name().endsWith("AIR")) {
                     continue;
                 }
 
@@ -54,7 +54,7 @@ public class WorthCommand extends BaseCommand {
 
         final ItemStack item = player.getInventory().getItem(player.getInventory().getHeldItemSlot());
 
-        if (item == null) {
+        if (item == null || item.getType().name().endsWith("AIR")) {
             sendMessage(sender, true, "ERROR.no-item-in-hand");
             return;
         }
